@@ -1,0 +1,15 @@
+target/
+.idea/
+.vscode/
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache/
+*.iml
+*.iws
+*.ipr
+.git
+.gitignore
+Dockerfile

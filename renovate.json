@@ -1,0 +1,17 @@
+{
+  "$schema": "https://renovatebot.com",
+  "extends": [
+    "config:recommended"
+  ],
+  "forkProcessing": "enabled",
+  "prConcurrentLimit": 0,
+  "packageRules": [
+    {
+      "matchManagers": ["dockerfile", "docker-compose", "github-actions"],
+      "pinDigests": true
+    }
+  ],
+  "lockFileMaintenance": {
+    "enabled": true
+  }
+}
