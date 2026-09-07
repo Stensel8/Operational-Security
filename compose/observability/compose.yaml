@@ -6,7 +6,7 @@ name: operational-security-observability
 services:
   openobserve:
     # Pinned (not :latest) so Renovate/Dependabot open a PR on each new release.
-    image: docker.io/openobserve/openobserve:v0.92.2
+    image: docker.io/openobserve/openobserve:v0.92.2@sha256:88fb692ac791d3eaff69653a4a4686f1c7eceb9e105491d58d29ac2739560b3b
     container_name: operational-security-openobserve
     environment:
       ZO_ROOT_USER_EMAIL: "${OPENOBSERVE_ROOT_USER_EMAIL:?set it in compose/observability/.env}"
@@ -22,7 +22,7 @@ services:
     restart: unless-stopped
 
   otel-collector:
-    image: docker.io/otel/opentelemetry-collector-contrib:0.160.0
+    image: docker.io/otel/opentelemetry-collector-contrib:0.160.0@sha256:799dc6cf12c96192af37b5bdba804da8c10b3bc563b43cb90c3f3c58d9572ad6
     container_name: operational-security-otelcol
     command: ["--config=/etc/otelcol-contrib/config.yaml"]
     # The collector's config.yaml reads these to authenticate to OpenObserve.

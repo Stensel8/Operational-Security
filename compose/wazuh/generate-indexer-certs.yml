@@ -6,7 +6,7 @@
 # Invoked by generate-certs.sh — you don't normally run this directly.
 services:
   generator:
-    image: docker.io/wazuh/wazuh-certs-generator:0.0.4
+    image: docker.io/wazuh/wazuh-certs-generator:0.0.4@sha256:369b4d58509aab074b188596870c81584f7120e653d9ef83c591f0f785dcf325
     hostname: wazuh-certs-generator
     environment:
       - CERT_TOOL_VERSION=4.14
