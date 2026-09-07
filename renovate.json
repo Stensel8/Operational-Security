@@ -1,17 +1,25 @@
 {
-  "$schema": "https://renovatebot.com",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
   ],
   "forkProcessing": "enabled",
   "prConcurrentLimit": 0,
-  "packageRules": [
-    {
-      "matchManagers": ["dockerfile", "docker-compose", "github-actions"],
-      "pinDigests": true
-    }
-  ],
   "lockFileMaintenance": {
     "enabled": true
-  }
+  },
+  "docker-compose": {
+    "description": "Also treat Wazuh's cert-generator file as a compose file",
+    "managerFilePatterns": [
+      "/(^|/)(?:docker-)?compose[^/]*\\.ya?ml$/",
+      "/(^|/)generate-indexer-certs\\.ya?ml$/"
+    ]
+  },
+  "packageRules": [
+    {
+      "description": "Pin image digests alongside the tag for supply-chain integrity",
+      "matchManagers": ["docker-compose", "github-actions"],
+      "pinDigests": true
+    }
+  ]
 }

@@ -1,0 +1,53 @@
+extensions:
+  # HTTP Basic auth for OpenObserve. Username/password come from the container's
+  # environment (set in compose.yaml from ../.env) — no base64 in a file.
+  basicauth/openobserve:
+    client_auth:
+      username: ${env:OPENOBSERVE_ROOT_USER_EMAIL}
+      password: ${env:OPENOBSERVE_ROOT_USER_PASSWORD}
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  # Tail newline-delimited JSON security events dropped into ./logs on the host
+  file_log/security:
+    include:
+      - /var/log/operational-security/*.json
+    start_at: beginning
+    include_file_name: true
+    operators:
+      - type: json_parser
+        parse_from: body
+
+processors:
+  batch:
+    timeout: 5s
+  resource_detection:
+    detectors: [env, system]
+    system:
+      hostname_sources: [os]
+
+exporters:
+  otlp_http/openobserve:
+    endpoint: http://openobserve:5080/api/default
+    auth:
+      authenticator: basicauth/openobserve
+    headers:
+      stream-name: operational_security
+  debug:
+    verbosity: basic
+
+service:
+  extensions: [basicauth/openobserve]
+  pipelines:
+    logs:
+      receivers: [otlp, file_log/security]
+      processors: [resource_detection, batch]
+      exporters: [otlp_http/openobserve, debug]
+  telemetry:
+    logs:
+      level: info

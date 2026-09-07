@@ -1,0 +1,15 @@
+# Wazuh's own certificate generator, straight from wazuh/wazuh-docker.
+# Only change from upstream: ":z" on the bind mounts so SELinux lets the
+# container write them. (renovate.json also treats this file as a compose file
+# so the image tag gets update PRs.)
+#
+# Invoked by generate-certs.sh — you don't normally run this directly.
+services:
+  generator:
+    image: docker.io/wazuh/wazuh-certs-generator:0.0.4
+    hostname: wazuh-certs-generator
+    environment:
+      - CERT_TOOL_VERSION=4.14
+    volumes:
+      - ./config/wazuh_indexer_ssl_certs/:/certificates/:z
+      - ./config/certs.yml:/config/certs.yml:z

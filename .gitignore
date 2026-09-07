@@ -1,25 +1,19 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# --- SOC lab: generated / local state, never commit ---
 
-.idea/*
+# Wazuh TLS material + rendered credential files (recreated by ./setup.sh)
+compose/wazuh/config/wazuh_indexer_ssl_certs/
+compose/wazuh/config/wazuh_indexer/internal_users.yml
+compose/wazuh/config/wazuh_dashboard/wazuh.yml
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Real env files with credentials — commit only the .env.example
+**/.env
 
-# testing
-/coverage
+# Sample / captured telemetry dropped into the collector's watch dir
+compose/observability/logs/*.json
+compose/observability/logs/*.log
+!compose/observability/logs/.gitkeep
 
-# production
-/build
-
-# misc
+# Editor / OS noise
+.idea/
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+*.swp

@@ -1,38 +1,24 @@
+# Dependency updates are split between two tools to avoid duplicate PRs:
+#
+#   Renovate (renovate.json)  ->  container images in every compose file, incl.
+#                                 compose/wazuh/generate-indexer-certs.yml, plus
+#                                 digest pinning.
+#   Dependabot (this file)    ->  GitHub Actions only. Native to GitHub, no app to
+#                                 install, so it always runs.
 version: 2
 
 updates:
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 20
-
-  - package-ecosystem: "maven"
-    directory: "/backend"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 20
-
-  - package-ecosystem: "docker"
-    directory: "/backend"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 20
-
-  - package-ecosystem: "docker"
-    directory: "/frontend"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 20
-
-  - package-ecosystem: "docker"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    open-pull-requests-limit: 20
-
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
-    open-pull-requests-limit: 20
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "github-actions"]
+    commit-message:
+      prefix: "ci"
+    groups:
+      github-actions:
+        patterns: ["*"]
