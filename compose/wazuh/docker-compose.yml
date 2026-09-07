@@ -1,13 +1,7 @@
-# Wazuh single-node SIEM — adapted from wazuh/wazuh-docker v4.14.7 for ROOTLESS Podman.
-#
-# Changes vs. upstream single-node/docker-compose.yml:
-#   * ports <1024 remapped     514/udp -> 5514/udp,  443 -> 8443   (rootless cannot bind privileged ports)
-#   * memlock ulimit removed   rootless cannot raise RLIMIT_MEMLOCK; the 4.14 indexer does not mlockall
-#   * ":z" on every bind mount SELinux relabel so the containers may read host files (Enforcing)
-#   * "operational-security" external network so the OpenTelemetry Collector can reach wazuh.manager
-#   * passwords come from ./.env (see .env.example); nothing secret is committed here
-#
-# Brought up by ../setup.sh, which also runs ./prepare.sh (certs + credential files).
+# Wazuh single-node SIEM — wazuh/wazuh-docker v4.14.7, adapted for rootless Podman.
+# Changes vs. upstream: privileged ports remapped (514->5514, 443->8443), memlock
+# ulimit dropped, ":z" on bind mounts for SELinux, external network for the OTel
+# Collector, passwords from ./.env. Brought up by ../setup.sh.
 services:
   wazuh.manager:
     image: docker.io/wazuh/wazuh-manager:4.14.7@sha256:80cada6a192fcb8caa8b415a5b64e2155138dd8df1da3a7b227d7e5e4e7460c0
