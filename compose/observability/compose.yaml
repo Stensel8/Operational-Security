@@ -6,7 +6,7 @@ name: operational-security-observability
 services:
   openobserve:
     # Pinned (not :latest) so Renovate/Dependabot open a PR on each new release.
-    image: docker.io/openobserve/openobserve:v0.92.2@sha256:88fb692ac791d3eaff69653a4a4686f1c7eceb9e105491d58d29ac2739560b3b
+    image: docker.io/openobserve/openobserve:v1.0.0@sha256:d581789cb03b5f061ed56a3e864b5e4bbc86bbf6d317ec863372e98ee49b30d5
     container_name: operational-security-openobserve
     environment:
       ZO_ROOT_USER_EMAIL: "${OPENOBSERVE_ROOT_USER_EMAIL:?set it in compose/observability/.env}"
