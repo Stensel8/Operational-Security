@@ -1,6 +1,6 @@
 extensions:
   # HTTP Basic auth for OpenObserve. Username/password come from the container's
-  # environment (set in compose.yaml from ../.env) — no base64 in a file.
+  # environment (set in compose.yaml from ../.env), no base64 in a file.
   basicauth/openobserve:
     client_auth:
       username: ${env:OPENOBSERVE_ROOT_USER_EMAIL}
@@ -22,6 +22,12 @@ receivers:
     operators:
       - type: json_parser
         parse_from: body
+  # Single intake point for the home network: point the UniFi controller's
+  # remote syslog setting at this host's <ip>:5140/udp.
+  syslog/unifi:
+    udp:
+      listen_address: "0.0.0.0:5140"
+    protocol: rfc3164
 
 processors:
   batch:
@@ -38,6 +44,20 @@ exporters:
       authenticator: basicauth/openobserve
     headers:
       stream-name: operational_security
+  # Same OpenObserve instance, separate stream so UniFi traffic is easy to find/search.
+  otlp_http/openobserve_unifi:
+    endpoint: http://openobserve:5080/api/default
+    auth:
+      authenticator: basicauth/openobserve
+    headers:
+      stream-name: unifi
+  # Fan out the parsed UniFi events to Wazuh too, so its rule engine can
+  # actually correlate/alert on them instead of just archiving raw text.
+  syslog/wazuh:
+    endpoint: wazuh.manager
+    network: udp
+    port: 514
+    protocol: rfc3164
   debug:
     verbosity: basic
 
@@ -48,6 +68,10 @@ service:
       receivers: [otlp, file_log/security]
       processors: [resource_detection, batch]
       exporters: [otlp_http/openobserve, debug]
+    logs/unifi:
+      receivers: [syslog/unifi]
+      processors: [batch]
+      exporters: [otlp_http/openobserve_unifi, syslog/wazuh, debug]
   telemetry:
     logs:
       level: info

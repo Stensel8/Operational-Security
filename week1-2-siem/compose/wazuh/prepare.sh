@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 #
-# One-time prep for the Wazuh stack:
-#   1. TLS certificates       (Wazuh's own generator container)
-#   2. internal_users.yml     (bcrypt hashes of the .env passwords)
-#   3. wazuh.yml              (the Wazuh API password)
+# Eenmalige voorbereiding van de Wazuh-stack:
+#   1. TLS-certificaten       (Wazuh's eigen generator-container)
+#   2. internal_users.yml     (bcrypt-hashes van de .env-wachtwoorden)
+#   3. wazuh.yml              (het Wazuh API-wachtwoord)
 #
-# Reads compose/wazuh/.env. Re-run it after changing a password there.
+# Leest compose/wazuh/.env. Opnieuw draaien nadat je daar een wachtwoord wijzigt.
 #
 set -euo pipefail
 cd "$(dirname "$0")"
 
-[ -f .env ] || { echo "compose/wazuh/.env is missing — copy it from .env.example"; exit 1; }
+[ -f .env ] || { echo "compose/wazuh/.env ontbreekt, kopieer hem vanuit .env.example"; exit 1; }
 set -a; . ./.env; set +a
 
-# 1. TLS certificates -------------------------------------------------------
+# 1. TLS-certificaten --------------------------------------------------------
 if [ -f config/wazuh_indexer_ssl_certs/root-ca.pem ]; then
-    echo "certs: already present"
+    echo "certificaten: al aanwezig"
 else
     mkdir -p config/wazuh_indexer_ssl_certs
     podman compose -f generate-indexer-certs.yml run --rm generator
 fi
 
-# 2 + 3. Render the credential files from templates ------------------------
-# hash.sh prints a bcrypt hash for one password; run it in the indexer image.
+# 2 + 3. Credentialbestanden renderen vanuit templates ----------------------
+# hash.sh print een bcrypt-hash voor één wachtwoord; draait in de indexer-image.
 bcrypt() {
     podman run --rm docker.io/wazuh/wazuh-indexer:4.14.7 \
         bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "$1" | tail -1
 }
 
-echo "rendering internal_users.yml + wazuh.yml from .env"
+echo "internal_users.yml + wazuh.yml renderen vanuit .env"
 ADMIN_HASH=$(bcrypt "$WAZUH_INDEXER_PASSWORD") \
 KIBANASERVER_HASH=$(bcrypt "$WAZUH_DASHBOARD_PASSWORD") \
 WAZUH_API_PASSWORD="$WAZUH_API_PASSWORD" \
@@ -50,4 +50,4 @@ render("config/wazuh_dashboard/wazuh.yml.template",
        {"__WAZUH_API_PASSWORD__": os.environ["WAZUH_API_PASSWORD"]})
 PY
 
-echo "Wazuh prepared."
+echo "Wazuh voorbereid."
