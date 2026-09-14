@@ -1,4 +1,4 @@
-# Wazuh single-node SIEM, based on wazuh/wazuh-docker v4.14.7, adapted for rootless Podman.
+# Wazuh single-node SIEM, based on wazuh/wazuh-docker, adapted for rootless Podman.
 # Changes vs. upstream: privileged ports remapped (514->5514, 443->8443), memlock
 # ulimit dropped, ":z" on bind mounts for SELinux, external network for the OTel
 # Collector, passwords from ./.env. Brought up by ../setup.sh.

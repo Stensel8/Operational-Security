@@ -35,6 +35,7 @@ services:
     ports:
       - "4317:4317"
       - "4318:4318"
+      - "2055:2055/udp"
     networks: [operational-security]
     depends_on: [openobserve]
     restart: unless-stopped

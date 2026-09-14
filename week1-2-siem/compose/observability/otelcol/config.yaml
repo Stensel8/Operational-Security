@@ -28,6 +28,13 @@ receivers:
     udp:
       listen_address: "0.0.0.0:5140"
     protocol: rfc3164
+  # Full flow accounting (who talks to whom, bytes/packets, ports), which
+  # syslog can't give us. Enable in UniFi: Settings > CyberSecure > Traffic
+  # Logging > NetFlow (IPFIX), pointed at this host's <ip>:2055/udp.
+  netflow/unifi:
+    scheme: netflow
+    hostname: "0.0.0.0"
+    port: 2055
 
 processors:
   batch:
@@ -51,6 +58,14 @@ exporters:
       authenticator: basicauth/openobserve
     headers:
       stream-name: unifi
+  # Flow records are high-volume and structurally different from syslog events,
+  # so they get their own stream too.
+  otlp_http/openobserve_unifi_netflow:
+    endpoint: http://openobserve:5080/api/default
+    auth:
+      authenticator: basicauth/openobserve
+    headers:
+      stream-name: unifi_netflow
   # Fan out the parsed UniFi events to Wazuh too, so its rule engine can
   # actually correlate/alert on them instead of just archiving raw text.
   syslog/wazuh:
@@ -72,6 +87,10 @@ service:
       receivers: [syslog/unifi]
       processors: [batch]
       exporters: [otlp_http/openobserve_unifi, syslog/wazuh, debug]
+    logs/unifi_netflow:
+      receivers: [netflow/unifi]
+      processors: [batch]
+      exporters: [otlp_http/openobserve_unifi_netflow, debug]
   telemetry:
     logs:
       level: info
