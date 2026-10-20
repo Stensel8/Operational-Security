@@ -5,8 +5,12 @@
   ],
   "forkProcessing": "enabled",
   "prConcurrentLimit": 0,
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": true,
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "automerge": true
   },
   "docker-compose": {
     "description": "Also treat Wazuh's cert-generator file as a compose file",
