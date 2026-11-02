@@ -1,13 +1,15 @@
-# Dependency updates are split between two tools to avoid duplicate PRs:
+# Dependabot version updates
+# Vervangt Renovate volledig: Dependabot houdt de GitHub Actions en de podman-compose-stacks
+# (Wazuh + de observability-stack) bij. Elke maandag komen er pull requests voor nieuwe versies.
 #
-#   Renovate (renovate.json)  ->  container images in every compose file, incl.
-#                                 compose/wazuh/generate-indexer-certs.yml, plus
-#                                 digest pinning.
-#   Dependabot (this file)    ->  GitHub Actions only. Native to GitHub, no app to
-#                                 install, so it always runs.
+# Wat Dependabot niet dekt: generate-indexer-certs.yml (Wazuh's cert-generator) heeft geen
+# standaard compose-bestandsnaam, dus die image-versie werk ik met de hand bij.
 version: 2
 
 updates:
+  # ---------------------------------------------------------------
+  # GitHub Actions - .github/workflows
+  # ---------------------------------------------------------------
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
@@ -16,10 +18,40 @@ updates:
       time: "06:00"
       timezone: "Europe/Amsterdam"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "github-actions"]
     commit-message:
-      prefix: "ci"
+      prefix: "chore"
+      include: "scope"
     groups:
       github-actions:
-        patterns: ["*"]
-        
+        patterns:
+          - "*"
+
+  # ---------------------------------------------------------------
+  # Docker Compose - observability-stack (OpenObserve/OTel Collector)
+  # ---------------------------------------------------------------
+  - package-ecosystem: "docker-compose"
+    directory: "/week1-2-siem/compose/observability"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+
+  # ---------------------------------------------------------------
+  # Docker Compose - Wazuh-stack
+  # ---------------------------------------------------------------
+  - package-ecosystem: "docker-compose"
+    directory: "/week1-2-siem/compose/wazuh"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Amsterdam"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"

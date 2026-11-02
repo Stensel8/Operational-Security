@@ -9,6 +9,7 @@
 #
 set -euo pipefail
 cd "$(dirname "$0")"
+. ../engine.sh
 
 [ -f .env ] || { echo "compose/wazuh/.env ontbreekt, kopieer hem vanuit .env.example"; exit 1; }
 set -a; . ./.env; set +a
@@ -18,13 +19,13 @@ if [ -f config/wazuh_indexer_ssl_certs/root-ca.pem ]; then
     echo "certificaten: al aanwezig"
 else
     mkdir -p config/wazuh_indexer_ssl_certs
-    podman compose -f generate-indexer-certs.yml run --rm generator
+    "$ENGINE" compose -f generate-indexer-certs.yml run --rm generator
 fi
 
 # 2 + 3. Credentialbestanden renderen vanuit templates ----------------------
 # hash.sh print een bcrypt-hash voor één wachtwoord; draait in de indexer-image.
 bcrypt() {
-    podman run --rm docker.io/wazuh/wazuh-indexer:4.14.7 \
+    "$ENGINE" run --rm docker.io/wazuh/wazuh-indexer:4.14.7 \
         bash /usr/share/wazuh-indexer/plugins/opensearch-security/tools/hash.sh -p "$1" | tail -1
 }
 

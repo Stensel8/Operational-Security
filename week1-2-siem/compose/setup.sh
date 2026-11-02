@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 #
-# Start het SOC-lab op een rootless Podman-host. Veilig om opnieuw te draaien,
-# elke stap slaat zichzelf over als hij al gedaan is.
+# Start het SOC-lab. Werkt met Docker of (rootless) Podman, zie engine.sh.
+# Veilig om opnieuw te draaien, elke stap slaat zichzelf over als hij al
+# gedaan is.
 #
 set -euo pipefail
 cd "$(dirname "$0")"
+. ./engine.sh
 
 # De Wazuh indexer (OpenSearch) weigert te starten als deze kernelinstelling te laag is.
-if [ "$(sysctl -n vm.max_map_count)" -lt 262144 ]; then
+# /usr/sbin zit niet overal in PATH (bv. non-interactieve SSH-sessies op minimale images).
+if [ "$(PATH="/usr/sbin:/sbin:$PATH" sysctl -n vm.max_map_count)" -lt 262144 ]; then
     echo "vm.max_map_count staat te laag. Eenmalig oplossen, als root:"
     echo "  echo 'vm.max_map_count=262144' | sudo tee /etc/sysctl.d/99-operational-security.conf"
     echo "  sudo sysctl --system"
@@ -21,13 +24,13 @@ for d in wazuh observability; do
 done
 
 # Gedeeld netwerk zodat de collector wazuh.manager op naam kan bereiken.
-podman network exists operational-security || podman network create operational-security
+network_exists operational-security || "$ENGINE" network create operational-security
 
 # Wazuh: TLS-certificaten + internal_users.yml / wazuh.yml renderen vanuit wazuh/.env
 bash wazuh/prepare.sh
 
-( cd wazuh         && podman compose up -d )
-( cd observability && podman compose up -d )
+( cd wazuh         && "$ENGINE" compose up -d )
+( cd observability && "$ENGINE" compose up -d )
 
 # Waarden opnieuw inlezen zodat deze samenvatting altijd klopt met wat er echt draait.
 set -a; . wazuh/.env; . observability/.env; set +a

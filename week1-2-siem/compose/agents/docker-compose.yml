@@ -1,0 +1,18 @@
+# "linux-server": agent-container met SSH + Wazuh-agent, voor echte SSH-auth-
+# en FIM-events naast de UniFi-data. Zie linux-server/Dockerfile.
+# Verbindt met de al draaiende wazuh.manager via het gedeelde "operational-security"-netwerk.
+services:
+  linux-server:
+    build: ./linux-server
+    hostname: linux-server
+    container_name: operational-security-linux-server
+    restart: unless-stopped
+    environment:
+      - WAZUH_MANAGER=wazuh.manager
+    ports:
+      - "2222:22"
+    networks: [operational-security]
+
+networks:
+  operational-security:
+    external: true

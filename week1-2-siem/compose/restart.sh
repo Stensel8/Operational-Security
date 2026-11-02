@@ -5,9 +5,10 @@
 #
 set -euo pipefail
 cd "$(dirname "$0")"
+. ./engine.sh
 
 for d in wazuh observability; do
-    ( cd "$d" && podman compose stop && podman compose start )
+    ( cd "$d" && "$ENGINE" compose stop && "$ENGINE" compose start )
 done
 
 echo "Herstart. De indexer heeft nog ~30s nodig voordat het dashboard werkt."

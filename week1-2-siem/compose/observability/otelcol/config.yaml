@@ -23,11 +23,12 @@ receivers:
       - type: json_parser
         parse_from: body
   # Single intake point for the home network: point the UniFi controller's
-  # remote syslog setting at this host's <ip>:5140/udp.
-  syslog/unifi:
-    udp:
-      listen_address: "0.0.0.0:5140"
-    protocol: rfc3164
+  # remote syslog setting at this host's <ip>:5140/udp. UniFi mengt RFC3164-
+  # en RFC5424-achtige berichten door elkaar (en soms geen van beide precies),
+  # dus geen syslog-receiver met strikte format-parsing — gewoon de ruwe regel
+  # als log-body binnenhalen, dat lukt altijd.
+  udplog/unifi:
+    listen_address: "0.0.0.0:5140"
   # Full flow accounting (who talks to whom, bytes/packets, ports), which
   # syslog can't give us. Enable in UniFi: Settings > CyberSecure > Traffic
   # Logging > NetFlow (IPFIX), pointed at this host's <ip>:2055/udp.
@@ -84,7 +85,7 @@ service:
       processors: [resource_detection, batch]
       exporters: [otlp_http/openobserve, debug]
     logs/unifi:
-      receivers: [syslog/unifi]
+      receivers: [udplog/unifi]
       processors: [batch]
       exporters: [otlp_http/openobserve_unifi, syslog/wazuh, debug]
     logs/unifi_netflow:
