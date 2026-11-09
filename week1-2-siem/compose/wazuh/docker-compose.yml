@@ -4,7 +4,7 @@
 # Collector, passwords from ./.env. Brought up by ../setup.sh.
 services:
   wazuh.manager:
-    image: docker.io/wazuh/wazuh-manager:4.14.9@sha256:dbb337727a6b6b17e24b1ccfe4c6e95fd983286ba0ccbf29d568144aa9527c6b
+    image: docker.io/wazuh/wazuh-manager:4.14.10@sha256:dcda4869e2f792e92f03bce93f85b4bdf103756ea61cfca8ba9f3eabeb05365b
     hostname: wazuh.manager
     restart: always
     ulimits:
